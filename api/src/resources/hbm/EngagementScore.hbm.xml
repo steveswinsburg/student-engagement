@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.sakaiproject.studentengagement.entity">
+
+	<class name="EngagementScore" table="ENGAGEMENT_SCORE">
+
+	    <id name="userUuid" column="USER_UUID" length="99">
+	    	<generator class="assigned" />
+	    </id>
+
+		<property name="score" column="SCORE" not-null="true" />
+		<property name="dateAdded" column="DATE_ADDED" type="timestamp" not-null="true" />
+  	</class>
+
+</hibernate-mapping>

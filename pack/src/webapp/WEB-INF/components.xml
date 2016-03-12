@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!--  StudentEngagementService -->
+ 	<bean id="org.sakaiproject.studentengagement.api.StudentEngagementService"
+    	class="org.sakaiproject.studentengagement.impl.StudentEngagementServiceImpl"
+        init-method="init">
+        <!-- API injection -->
+        <property name="studentEngagementPersistenceService" ref="org.sakaiproject.studentengagement.persistence.StudentEngagementPersistenceService" />
+        <!-- 
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+        <property name="sakaiPersonManager" ref="org.sakaiproject.api.common.edu.person.SakaiPersonManager" />
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService" />
+		<property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
+		<property name="activityService" ref="org.sakaiproject.event.api.ActivityService" />
+		
+		-->
+	</bean>
+	
+	<!-- setup a DAO, accessed via the transaction proxy -->
+	<bean id="org.sakaiproject.studentengagement.persistence.StudentEngagementPersistenceServiceTarget"
+    	class="org.sakaiproject.studentengagement.persistence.impl.StudentEngagementPersistenceServiceImpl"
+    	init-method="init">
+		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+	</bean>
+        
+	<!--  register the DAO as a transactional interceptor. Use the classloader proxy from gendao because this is a protected DAO
+-->
+	<bean id="org.sakaiproject.studentengagement.persistence.StudentEngagementPersistenceService"
+		class="org.sakaiproject.genericdao.springutil.CurrentClassLoaderTxProxyFactoryBean">		
+		<property name="transactionManager" ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="target" ref="org.sakaiproject.studentengagement.persistence.StudentEngagementPersistenceServiceTarget" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>	
+	
+	
+
+	<!-- Add our HBM files to the Sakai global session factory -->
+	<bean id="org.sakaiproject.studentengagement.hbm.HBMMappingList"
+    	class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+
+	    <property name="mappingResources">
+	      <list>
+	      	<value>hbm/EngagementScore.hbm.xml</value>
+	      </list>
+	    </property>
+
+  	</bean>
+  	
+	
+  	
+  	<!-- jobs -->
+	<bean id="org.sakaiproject.studentengagement.job.ScoreCalcJob"
+		class="org.sakaiproject.studentengagement.job.ScoreCalcJob"
+		init-method="init">
+		<property name="studentEngagementService" ref="org.sakaiproject.studentengagement.api.StudentEngagementService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+	</bean>
+	
+	<bean id="org.sakaiproject.studentengagement.job.ScoreCalcJobBeanWrapper"
+		class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+		init-method="init">
+		<property name="jobName" value="Student Engagement Score Calculator" />
+		<property name="beanId" value="org.sakaiproject.studentengagement.job.ScoreCalcJob" />
+		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+	</bean>
+    
+
+</beans>
