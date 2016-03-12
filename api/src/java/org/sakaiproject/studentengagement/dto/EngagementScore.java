@@ -18,6 +18,7 @@ import lombok.ToString;
 public class EngagementScore {
 
 	private String userUuid;
+	private String siteId;
 	private BigDecimal score;
 	private Date day;
 

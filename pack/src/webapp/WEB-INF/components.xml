@@ -8,6 +8,8 @@
     	class="org.sakaiproject.studentengagement.impl.StudentEngagementServiceImpl">
         <!-- API injection -->
         <property name="persistenceService" ref="org.sakaiproject.studentengagement.persistence.StudentEngagementPersistenceService" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        
         <!-- 
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />

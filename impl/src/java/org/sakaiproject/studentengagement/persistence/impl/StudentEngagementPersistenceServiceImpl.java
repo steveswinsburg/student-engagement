@@ -24,7 +24,8 @@ public class StudentEngagementPersistenceServiceImpl extends HibernateDaoSupport
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<EngagementScoreEntity> getScores(final List<String> userUuids, final Date dateFrom, final Date dateTo) {
+	public List<EngagementScoreEntity> getScores(final List<String> userUuids, final String siteId, final Date dateFrom,
+			final Date dateTo) {
 
 		final Session session = getSessionFactory().getCurrentSession();
 		final Criteria criteria = session.createCriteria(EngagementScoreEntity.class);
@@ -32,6 +33,7 @@ public class StudentEngagementPersistenceServiceImpl extends HibernateDaoSupport
 		// TODO note that this does not yet support more than 1000 uuids, it will need to be manually split
 		criteria.add(Restrictions.in("userUuid", userUuids));
 
+		criteria.add(Restrictions.eq("siteId", siteId));
 		criteria.add(Restrictions.ge("day", dateFrom));
 		criteria.add(Restrictions.lt("day", dateTo));
 		final List<EngagementScoreEntity> entities = criteria.list();

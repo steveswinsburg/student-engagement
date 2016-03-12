@@ -20,9 +20,10 @@ public class EngagementScoreEntity implements Serializable {
 	@Setter
 	private String userUuid;
 
-	/**
-	 * Calculated score as a percentage based on the settings avaialble at the time
-	 */
+	@Getter
+	@Setter
+	private String siteId;
+
 	@Getter
 	@Setter
 	private BigDecimal score;

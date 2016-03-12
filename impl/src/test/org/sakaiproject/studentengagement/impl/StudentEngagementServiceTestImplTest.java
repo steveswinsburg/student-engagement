@@ -16,15 +16,19 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sakaiproject.studentengagement.api.StudentEngagementService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.studentengagement.dto.EngagementScore;
 import org.sakaiproject.studentengagement.entity.EngagementScoreEntity;
 import org.sakaiproject.studentengagement.persistence.StudentEngagementPersistenceService;
@@ -33,12 +37,20 @@ import org.sakaiproject.studentengagement.persistence.StudentEngagementPersisten
 public class StudentEngagementServiceTestImplTest {
 
 	@InjectMocks
-	StudentEngagementService impl = new StudentEngagementServiceImpl();
+	StudentEngagementServiceImpl impl = new StudentEngagementServiceImpl();
 
 	@Mock
 	StudentEngagementPersistenceService mockPersistenceService;
 
+	@Mock
+	SiteService mockSiteService;
+
+	@Mock
+	Site mockSite;
+
 	List<String> userUuids = new ArrayList<>();
+	String siteId;
+	Date day;
 	Date dateFrom;
 	Date dateTo;
 
@@ -46,26 +58,37 @@ public class StudentEngagementServiceTestImplTest {
 	public void setUp() {
 
 		this.userUuids = new ArrayList<>();
-
+		this.siteId = "siteId";
+		this.day = new Date();
 		this.dateFrom = new Date();
 		this.dateTo = new Date();
 	}
 
 	@Test
-	public void testGetNoData() {
+	public void testGetNoData() throws IdUnusedException {
 
 		this.userUuids = getUserUuids(1);
 
-		when(this.mockPersistenceService.getScores(this.userUuids, this.dateFrom, this.dateTo)).thenReturn(new ArrayList<>());
-		final List<EngagementScore> scores = this.impl.getEngagementScores(this.userUuids, this.dateFrom, this.dateFrom);
+		when(this.mockSiteService.getSite(this.siteId)).thenReturn(this.mockSite);
+		when(this.mockSite.getUsersIsAllowed(Matchers.anyString())).thenReturn(new HashSet<>(this.userUuids));
+		when(this.mockPersistenceService.getScores(this.userUuids, this.siteId, this.dateFrom, this.dateTo))
+				.thenReturn(getScoreEntities(0));
+
+		final List<EngagementScore> scores = this.impl.getEngagementScores(this.siteId, this.day);
 		assertEquals("Score list should be empty.", 0, scores.size());
 	}
 
 	@Test
-	public void testGetOneScoreOneUser() {
+	public void testGetOneScoreOneUser() throws IdUnusedException {
+
 		this.userUuids = getUserUuids(1);
-		when(this.mockPersistenceService.getScores(this.userUuids, this.dateFrom, this.dateTo)).thenReturn(getScoreEntities(1));
-		final List<EngagementScore> scores = this.impl.getEngagementScores(this.userUuids, this.dateFrom, this.dateFrom);
+
+		when(this.mockSiteService.getSite(this.siteId)).thenReturn(this.mockSite);
+		when(this.mockSite.getUsersIsAllowed(Matchers.anyString())).thenReturn(new HashSet<>(this.userUuids));
+		when(this.mockPersistenceService.getScores(this.userUuids, this.siteId, this.dateFrom, this.dateTo))
+				.thenReturn(getScoreEntities(1));
+
+		final List<EngagementScore> scores = this.impl.getEngagementScores(this.siteId, this.day);
 		assertEquals("Score list should be one.", 1, scores.size());
 	}
 

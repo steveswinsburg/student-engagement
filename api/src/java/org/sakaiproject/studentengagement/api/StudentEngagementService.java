@@ -14,13 +14,12 @@ import org.sakaiproject.studentengagement.dto.EngagementScore;
 public interface StudentEngagementService {
 
 	/**
-	 * Fetch the engagement score for a set of users
+	 * Fetch the engagement scores for a given site and day
 	 *
-	 * @param userUuid uuids to get the score for
-	 * @param dateFrom the {@link Date} as the lower bound of the lookup
-	 * @param dateTo the {@link Date} as the upper bound of the lookup
-	 * @return {@link EngagementScore} for the users
+	 * @param siteId siteId to get the scores for
+	 * @param day the {@link Date} to get the scores for
+	 * @return {@link EngagementScore} for the students in the site
 	 */
-	List<EngagementScore> getEngagementScores(final List<String> userUuids, Date dateFrom, Date dateTo);
+	List<EngagementScore> getEngagementScores(final String siteId, Date day);
 
 }

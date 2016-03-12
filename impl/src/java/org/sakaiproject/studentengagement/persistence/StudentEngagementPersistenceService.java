@@ -11,6 +11,6 @@ import org.sakaiproject.studentengagement.entity.EngagementScoreEntity;
  */
 public interface StudentEngagementPersistenceService {
 
-	List<EngagementScoreEntity> getScores(final List<String> userUuids, Date dateFrom, Date dateTo);
+	List<EngagementScoreEntity> getScores(final List<String> userUuids, String siteId, Date dateFrom, Date dateTo);
 
 }

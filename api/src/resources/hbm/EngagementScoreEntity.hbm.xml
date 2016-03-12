@@ -10,7 +10,8 @@
 	    <id name="userUuid" column="USER_UUID" length="99">
 	    	<generator class="assigned" />
 	    </id>
-
+	    
+	    <property name="siteId" column="SITE_ID" not-null="true" />
 		<property name="score" column="SCORE" not-null="true" />
 		<property name="day" column="DAY" not-null="true" />
   	</class>
