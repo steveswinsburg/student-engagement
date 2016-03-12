@@ -9,6 +9,8 @@ import lombok.Setter;
 
 /**
  * Persistent entity for the student engagement score
+ *
+ * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  */
 public class EngagementScoreEntity implements Serializable {
 
@@ -27,6 +29,6 @@ public class EngagementScoreEntity implements Serializable {
 
 	@Getter
 	@Setter
-	private Date dateAdded;
+	private Date day;
 
 }

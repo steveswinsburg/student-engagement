@@ -70,7 +70,9 @@ public class ScoreCalcJob implements StatefulJob {
 		// session.setUserId("admin");
 
 		// get total possible score
-		final BigDecimal total = getTotal();
+		// final BigDecimal total = getTotal();
+		final BigDecimal total = new BigDecimal(4);
+
 		log.info("Total score possible: " + total.setScale(2, RoundingMode.HALF_UP));
 
 		// get total number of records

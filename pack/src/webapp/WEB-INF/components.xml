@@ -5,10 +5,9 @@
 
 	<!--  StudentEngagementService -->
  	<bean id="org.sakaiproject.studentengagement.api.StudentEngagementService"
-    	class="org.sakaiproject.studentengagement.impl.StudentEngagementServiceImpl"
-        init-method="init">
+    	class="org.sakaiproject.studentengagement.impl.StudentEngagementServiceImpl">
         <!-- API injection -->
-        <property name="studentEngagementPersistenceService" ref="org.sakaiproject.studentengagement.persistence.StudentEngagementPersistenceService" />
+        <property name="persistenceService" ref="org.sakaiproject.studentengagement.persistence.StudentEngagementPersistenceService" />
         <!-- 
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
@@ -29,8 +28,7 @@
 	
 	<!-- setup a DAO, accessed via the transaction proxy -->
 	<bean id="org.sakaiproject.studentengagement.persistence.StudentEngagementPersistenceServiceTarget"
-    	class="org.sakaiproject.studentengagement.persistence.impl.StudentEngagementPersistenceServiceImpl"
-    	init-method="init">
+    	class="org.sakaiproject.studentengagement.persistence.impl.StudentEngagementPersistenceServiceImpl">
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 	</bean>
         
@@ -55,7 +53,7 @@
 
 	    <property name="mappingResources">
 	      <list>
-	      	<value>hbm/EngagementScore.hbm.xml</value>
+	      	<value>hbm/EngagementScoreEntity.hbm.xml</value>
 	      </list>
 	    </property>
 
