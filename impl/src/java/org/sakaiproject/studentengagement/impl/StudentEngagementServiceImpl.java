@@ -34,10 +34,15 @@ public class StudentEngagementServiceImpl implements StudentEngagementService {
 		final List<String> userUuids = getStudents(siteId);
 
 		// get scores from persistence and map them
-		final List<EngagementScoreEntity> entities = this.persistenceService.getScores(userUuids, siteId, day, day);
+		final List<EngagementScoreEntity> entities = this.persistenceService.getScores(userUuids, siteId, day);
 		final List<EngagementScore> rval = mapToDto(entities);
 
 		return rval;
+	}
+
+	@Override
+	public void setEngagementScore(final String userUuid, final String siteId, final Date day) {
+
 	}
 
 	/**

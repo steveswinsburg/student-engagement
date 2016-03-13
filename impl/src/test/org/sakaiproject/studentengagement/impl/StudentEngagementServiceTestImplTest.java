@@ -60,8 +60,6 @@ public class StudentEngagementServiceTestImplTest {
 		this.userUuids = new ArrayList<>();
 		this.siteId = "siteId";
 		this.day = new Date();
-		this.dateFrom = new Date();
-		this.dateTo = new Date();
 	}
 
 	@Test
@@ -71,7 +69,7 @@ public class StudentEngagementServiceTestImplTest {
 
 		when(this.mockSiteService.getSite(this.siteId)).thenReturn(this.mockSite);
 		when(this.mockSite.getUsersIsAllowed(Matchers.anyString())).thenReturn(new HashSet<>(this.userUuids));
-		when(this.mockPersistenceService.getScores(this.userUuids, this.siteId, this.dateFrom, this.dateTo))
+		when(this.mockPersistenceService.getScores(this.userUuids, this.siteId, this.day))
 				.thenReturn(getScoreEntities(0));
 
 		final List<EngagementScore> scores = this.impl.getEngagementScores(this.siteId, this.day);
@@ -85,7 +83,7 @@ public class StudentEngagementServiceTestImplTest {
 
 		when(this.mockSiteService.getSite(this.siteId)).thenReturn(this.mockSite);
 		when(this.mockSite.getUsersIsAllowed(Matchers.anyString())).thenReturn(new HashSet<>(this.userUuids));
-		when(this.mockPersistenceService.getScores(this.userUuids, this.siteId, this.dateFrom, this.dateTo))
+		when(this.mockPersistenceService.getScores(this.userUuids, this.siteId, this.day))
 				.thenReturn(getScoreEntities(1));
 
 		final List<EngagementScore> scores = this.impl.getEngagementScores(this.siteId, this.day);

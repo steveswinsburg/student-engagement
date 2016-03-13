@@ -10,6 +10,7 @@
  */
 package org.sakaiproject.studentengagement.persistence.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -24,8 +25,7 @@ public class StudentEngagementPersistenceServiceImpl extends HibernateDaoSupport
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<EngagementScoreEntity> getScores(final List<String> userUuids, final String siteId, final Date dateFrom,
-			final Date dateTo) {
+	public List<EngagementScoreEntity> getScores(final List<String> userUuids, final String siteId, final Date day) {
 
 		final Session session = getSessionFactory().getCurrentSession();
 		final Criteria criteria = session.createCriteria(EngagementScoreEntity.class);
@@ -34,10 +34,31 @@ public class StudentEngagementPersistenceServiceImpl extends HibernateDaoSupport
 		criteria.add(Restrictions.in("userUuid", userUuids));
 
 		criteria.add(Restrictions.eq("siteId", siteId));
-		criteria.add(Restrictions.ge("day", dateFrom));
-		criteria.add(Restrictions.lt("day", dateTo));
+		criteria.add(Restrictions.eq("day", day));
 		final List<EngagementScoreEntity> entities = criteria.list();
 		return entities;
+
+	}
+
+	@Override
+	public List<String> getEvents(final String userUuid, final String siteId, final Date day) {
+		//
+		// String query = "select se.EVENT_ID, se.EVENT_DATE, se.EVENT, se.REF, se.CONTEXT, se.EVENT_CODE, um.USER_ID, um.EID from " +
+		// "SAKAI_EVENT se, SAKAI_SESSION ss, SAKAI_USER_ID_MAP um " +
+		// "where se.SESSION_ID = ss.SESSION_ID and um.EID = ? and ";
+		//
+		// if (sqlService.getVendor().equals("oracle"))
+		// {
+		// query += "EVENT_DATE BETWEEN to_date(?, 'YYYY-MM-DD HH24:MI') AND to_date(?, 'YYYY-MM-DD HH24:MI') ";
+		// }
+		// else
+		// {
+		// query += "EVENT_DATE BETWEEN ? AND ?";
+		// }
+		//
+		// query += " and um.USER_ID = ss.SESSION_USER order by se.EVENT_DATE desc";
+
+		return new ArrayList<>();
 
 	}
 
