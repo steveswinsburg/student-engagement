@@ -12,5 +12,8 @@ There are two parts:
 Simply `mvn clean install sakai:deploy` into your Sakai installation.
 
 ## How the scoring works
+TODO
 
+## Configuration
+TODO
 
