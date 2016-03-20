@@ -24,6 +24,14 @@ public interface StudentEngagementService {
 	List<EngagementScore> getEngagementScores(final String siteId, LocalDate day);
 
 	/**
+	 * Calculates the engagement score for the day an dall users in the site
+	 *
+	 * @param userUuid user to calculate for
+	 * @param siteId site to calculate for
+	 */
+	void calculateAndSetEngagementScore(String siteId, LocalDate day);
+	
+	/**
 	 * Calculates and sets the engagement score for the day
 	 *
 	 * @param userUuid user to calculate for

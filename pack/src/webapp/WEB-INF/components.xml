@@ -75,6 +75,7 @@
 		<property name="studentEngagementService" ref="org.sakaiproject.studentengagement.api.StudentEngagementService" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 	</bean>
 	
 	<bean id="org.sakaiproject.studentengagement.job.ScoreCalcJobBeanWrapper"

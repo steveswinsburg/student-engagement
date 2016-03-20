@@ -98,7 +98,7 @@ public class StudentEngagementServiceTestImplTest {
 			final EngagementScoreEntity e = new EngagementScoreEntity();
 			e.setUserUuid("userUuid" + i);
 			e.setScore(new BigDecimal(i));
-			e.setDay(new Date());
+			e.setDay(LocalDate.now().toString());
 			rval.add(e);
 		}
 

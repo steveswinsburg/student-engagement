@@ -30,6 +30,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.studentengagement.api.StudentEngagementService;
+import org.sakaiproject.studentengagement.dto.EngagementEvent;
 import org.sakaiproject.studentengagement.dto.EngagementScore;
 import org.sakaiproject.studentengagement.dto.LastCompleteDay;
 import org.sakaiproject.studentengagement.entity.EngagementScoreEntity;
@@ -39,10 +40,12 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
 
 import lombok.Setter;
+import lombok.extern.apachecommons.CommonsLog;
 
 /**
  * Implementation of {@link StudentEngagementService}
  */
+@CommonsLog
 public class StudentEngagementServiceImpl implements StudentEngagementService {
 
 	@Override
@@ -60,6 +63,22 @@ public class StudentEngagementServiceImpl implements StudentEngagementService {
 		final List<EngagementScore> rval = mapToDto(entities);
 
 		return rval;
+	}
+	
+	@Override
+	public void calculateAndSetEngagementScore(String siteId, LocalDate day) {
+		// get students in site
+		final List<String> userUuids = getStudents(siteId);
+		
+		if(userUuids.isEmpty()){
+			log.info(String.format("Site: %s has no users. Nothing to do.", siteId));
+			return;
+		}
+		
+		for(String userUuid: userUuids) {
+			calculateAndSetEngagementScore(userUuid, siteId, day);
+		}
+		
 	}
 
 	@Override
@@ -82,6 +101,17 @@ public class StudentEngagementServiceImpl implements StudentEngagementService {
 		//has yesterday finished for the user (the end of the day will be before before the current days beginning.
 		//yesterdayEndUser.toInstant()day.
 
+		log.info(String.format("Running for site: %s, user: %s and day: %s.", siteId, userUuid, day.toString()));
+		
+		
+		List<EngagementEvent> events = this.persistenceService.getEvents(userUuid, siteId, day);
+		events.forEach(e -> {
+			
+			log.info(e);
+			
+		});
+		
+		
 
 	}
 
@@ -186,5 +216,7 @@ public class StudentEngagementServiceImpl implements StudentEngagementService {
 
 	@Setter
 	PreferencesService preferencesService;
+
+	
 
 }

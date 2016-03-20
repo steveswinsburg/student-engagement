@@ -72,7 +72,7 @@ public class StudentEngagementPersistenceServiceImpl extends HibernateDaoSupport
 			"FROM sakai_event e " +
 			"JOIN sakai_session s " +
 			"  ON e.session_id = s.session_id " +
-			"WHERE s.session_user = = :user_id " +
+			"WHERE s.session_user = :user_id " +
 			"AND e.context = :site_id ";
 			if (StringUtils.equalsIgnoreCase(this.dbVendor, "oracle")) {
 				queryString += "AND e.event_date BETWEEN TO_DATE(:start_of_day, 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE(:end_of_day, 'YYYY-MM-DD HH24:MI:SS') ";
@@ -90,7 +90,7 @@ public class StudentEngagementPersistenceServiceImpl extends HibernateDaoSupport
 		// TODO this is still not correct as it will be the start of day for the events not the users actual time
 		// will need to pass in the start and end date times
 		query.setString("start_of_day", day.toString() + " 00:00:00");
-		query.setString("start_of_day", day.toString() + " 23:59:59");
+		query.setString("end_of_day", day.toString() + " 23:59:59");
 
 		
 		query.addScalar("event", StandardBasicTypes.STRING);
