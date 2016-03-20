@@ -1,25 +1,21 @@
 package org.sakaiproject.studentengagement.dto;
 
-import java.math.BigDecimal;
-import java.util.Date;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 /**
- * DTO for the engagement score
+ * DTO for an event
  *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  */
 @ToString(includeFieldNames = true)
 @Getter
 @Setter
-public class EngagementScore {
+public class EngagementEvent {
 
-	private String userUuid;
+	private String event;
 	private String siteId;
-	private BigDecimal score;
-	private String day;
+	private String userUuid;
 
 }

@@ -7,13 +7,20 @@
 
 	<class name="EngagementScoreEntity" table="ENGAGEMENT_SCORE">
 
-	    <id name="userUuid" column="USER_UUID" length="99">
-	    	<generator class="assigned" />
-	    </id>
+		<id name="id" column="ID" type="long">
+			<generator class="native">
+				<param name="sequence">ENGAGEMENT_SCORE_SEQ</param>
+			</generator>
+		</id>
 	    
-	    <property name="siteId" column="SITE_ID" not-null="true" />
+	    <property name="userUuid" column="USER_UUID" length="36" not-null="true" />
+	    <property name="siteId" column="SITE_ID" length="36" not-null="true" />
 		<property name="score" column="SCORE" not-null="true" />
-		<property name="day" column="DAY" not-null="true" />
+		<property name="day" column="DAY" length="10" not-null="true" />
+		
+		
+		<!--  TODO indexes, sequence create, upgrade for 12 -->
+		
   	</class>
 
 </hibernate-mapping>

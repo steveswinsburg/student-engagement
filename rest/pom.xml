@@ -19,6 +19,7 @@
 			<groupId>org.sakaiproject.studentengagement</groupId>
 			<artifactId>studentengagement-api</artifactId>
 			<version>12-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
 	    <dependency>
       		<groupId>org.sakaiproject.entitybroker</groupId>
@@ -47,6 +48,10 @@
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-kernel-util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
 		</dependency>
 	</dependencies>
 	

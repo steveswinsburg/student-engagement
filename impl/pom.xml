@@ -18,6 +18,7 @@
 			<groupId>org.sakaiproject.studentengagement</groupId>
 			<artifactId>studentengagement-api</artifactId>
 			<version>12-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
         <dependency>
             <groupId>org.springframework</groupId>

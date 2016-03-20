@@ -1,9 +1,10 @@
 
 package org.sakaiproject.studentengagement.persistence;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
+import org.sakaiproject.studentengagement.dto.EngagementEvent;
 import org.sakaiproject.studentengagement.entity.EngagementScoreEntity;
 
 /**
@@ -11,8 +12,8 @@ import org.sakaiproject.studentengagement.entity.EngagementScoreEntity;
  */
 public interface StudentEngagementPersistenceService {
 
-	List<EngagementScoreEntity> getScores(final List<String> userUuids, final String siteId, final Date day);
+	List<EngagementScoreEntity> getScores(final List<String> userUuids, final String siteId, final LocalDate day);
 
-	List<String> getEvents(final String userUuid, final String siteId, final Date day);
+	List<EngagementEvent> getEvents(final String userUuid, final String siteId, final LocalDate day);
 
 }

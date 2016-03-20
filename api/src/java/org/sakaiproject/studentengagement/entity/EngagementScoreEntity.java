@@ -18,18 +18,27 @@ public class EngagementScoreEntity implements Serializable {
 
 	@Getter
 	@Setter
+	private long id;
+	
+	@Getter
+	@Setter
 	private String userUuid;
 
 	@Getter
 	@Setter
 	private String siteId;
+	
+	/**
+	 * Only need this as a string in ISO-8601 format
+	 */
+	@Getter
+	@Setter
+	private String day;
 
 	@Getter
 	@Setter
 	private BigDecimal score;
 
-	@Getter
-	@Setter
-	private Date day;
+	
 
 }

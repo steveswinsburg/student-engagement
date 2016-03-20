@@ -31,7 +31,7 @@
 		<module>api</module>
 		<module>impl</module>
 		<module>pack</module>
-		<!--<module>rest</module>-->
+		<module>rest</module>
 	</modules>
 	<build>
 		<plugins>

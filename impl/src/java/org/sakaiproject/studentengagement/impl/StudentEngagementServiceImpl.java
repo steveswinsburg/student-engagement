@@ -10,12 +10,14 @@ package org.sakaiproject.studentengagement.impl;
  * prosecution.
  */
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +31,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.studentengagement.api.StudentEngagementService;
 import org.sakaiproject.studentengagement.dto.EngagementScore;
+import org.sakaiproject.studentengagement.dto.LastCompleteDay;
 import org.sakaiproject.studentengagement.entity.EngagementScoreEntity;
 import org.sakaiproject.studentengagement.persistence.StudentEngagementPersistenceService;
 import org.sakaiproject.time.api.TimeService;
@@ -47,12 +50,13 @@ public class StudentEngagementServiceImpl implements StudentEngagementService {
 
 		// get students in site
 		final List<String> userUuids = getStudents(siteId);
-
-		// convert LocalDate to Date
-		final Date date = Date.from(day.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-
+		
+		if(userUuids.isEmpty()){
+			return Collections.emptyList();
+		}
+		
 		// get scores from persistence and map them
-		final List<EngagementScoreEntity> entities = this.persistenceService.getScores(userUuids, siteId, date);
+		final List<EngagementScoreEntity> entities = this.persistenceService.getScores(userUuids, siteId, day);
 		final List<EngagementScore> rval = mapToDto(entities);
 
 		return rval;
@@ -62,21 +66,21 @@ public class StudentEngagementServiceImpl implements StudentEngagementService {
 	public void calculateAndSetEngagementScore(final String userUuid, final String siteId, final LocalDate day) {
 
 		// get day prior
-		final LocalDate yesterday = day.minusDays(1);
+		//final LocalDate yesterday = day.minusDays(1);
 
 		// get the beginning of the given day
-		final LocalDateTime beginningOfDay = day.minusDays(1).atStartOfDay();
+		//final LocalDateTime beginningOfDay = day.minusDays(1).atStartOfDay();
 		//final LocalDate yesterdayServer = day.minusDays(1).with(LocalDateTime.MAX);
 
 		// get the preferred timezone for the user
 		// TODO optimise this into a map/cache that persists between runs so we dont need to hit it each time?
-		final ZoneId zoneId = getUserTimeZone(userUuid);
+		//final ZoneId zoneId = getUserTimeZone(userUuid);
 
 		//determine the end of yesterday for the user
-		final ZonedDateTime yesterdayEndUser = yesterdayServer.atStartOfDay(zoneId).with(LocalDateTime.MAX);
+		//final ZonedDateTime yesterdayEndUser = yesterdayServer.atStartOfDay(zoneId).with(LocalDateTime.MAX);
 
 		//has yesterday finished for the user (the end of the day will be before before the current days beginning.
-		yesterdayEndUser.toInstant()day.
+		//yesterdayEndUser.toInstant()day.
 
 
 	}
@@ -138,6 +142,37 @@ public class StudentEngagementServiceImpl implements StudentEngagementService {
 		}
 
 		return timezone.toZoneId();
+	}
+	
+	protected LastCompleteDay getLastCompleteDay(ZoneId zoneId){
+		
+		LastCompleteDay rval = new LastCompleteDay();
+		
+		ZonedDateTime now = ZonedDateTime.now();
+		long nowSeconds = Instant.from(now).getEpochSecond();
+
+		//TODO convert these to instants straight up, we dont need the zonedbits
+		final ZonedDateTime localisedYesterdayStart = now.toLocalDate().minusDays(1).atStartOfDay(zoneId);
+		final ZonedDateTime localisedNextDayStart = localisedYesterdayStart.toLocalDate().plusDays(1).atStartOfDay(zoneId);
+		
+		long localisedNextDayStartSeconds = Instant.from(localisedNextDayStart).getEpochSecond();
+		
+		//is the localised next day start less than right now? If so, that day is complete.
+		if(localisedNextDayStartSeconds < nowSeconds) {
+			System.out.println("day has ended");
+			rval.setStart(Instant.from(localisedYesterdayStart).getEpochSecond());
+			rval.setStart(Instant.from(localisedNextDayStart).getEpochSecond()-1);
+		} else {
+			System.out.println("day not over");
+			//subtract another day and get the instants for start and emd
+		}
+		
+		
+		
+		
+		
+		return null;
+		
 	}
 
 	@Setter

@@ -14,6 +14,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -50,7 +51,7 @@ public class StudentEngagementServiceTestImplTest {
 
 	List<String> userUuids = new ArrayList<>();
 	String siteId;
-	Date day;
+	LocalDate today;
 	Date dateFrom;
 	Date dateTo;
 
@@ -59,7 +60,7 @@ public class StudentEngagementServiceTestImplTest {
 
 		this.userUuids = new ArrayList<>();
 		this.siteId = "siteId";
-		this.day = new Date();
+		this.today = LocalDate.now();
 	}
 
 	@Test
@@ -69,10 +70,10 @@ public class StudentEngagementServiceTestImplTest {
 
 		when(this.mockSiteService.getSite(this.siteId)).thenReturn(this.mockSite);
 		when(this.mockSite.getUsersIsAllowed(Matchers.anyString())).thenReturn(new HashSet<>(this.userUuids));
-		when(this.mockPersistenceService.getScores(this.userUuids, this.siteId, this.day))
+		when(this.mockPersistenceService.getScores(this.userUuids, this.siteId, this.today))
 				.thenReturn(getScoreEntities(0));
 
-		final List<EngagementScore> scores = this.impl.getEngagementScores(this.siteId, this.day);
+		final List<EngagementScore> scores = this.impl.getEngagementScores(this.siteId, this.today);
 		assertEquals("Score list should be empty.", 0, scores.size());
 	}
 
@@ -83,10 +84,10 @@ public class StudentEngagementServiceTestImplTest {
 
 		when(this.mockSiteService.getSite(this.siteId)).thenReturn(this.mockSite);
 		when(this.mockSite.getUsersIsAllowed(Matchers.anyString())).thenReturn(new HashSet<>(this.userUuids));
-		when(this.mockPersistenceService.getScores(this.userUuids, this.siteId, this.day))
+		when(this.mockPersistenceService.getScores(this.userUuids, this.siteId, this.today))
 				.thenReturn(getScoreEntities(1));
 
-		final List<EngagementScore> scores = this.impl.getEngagementScores(this.siteId, this.day);
+		final List<EngagementScore> scores = this.impl.getEngagementScores(this.siteId, this.today);
 		assertEquals("Score list should be one.", 1, scores.size());
 	}
 
