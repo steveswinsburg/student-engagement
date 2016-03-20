@@ -1,7 +1,7 @@
 
 package org.sakaiproject.studentengagement.api;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.sakaiproject.studentengagement.dto.EngagementScore;
@@ -17,18 +17,22 @@ public interface StudentEngagementService {
 	 * Retrieve the engagement scores for a given site and day
 	 *
 	 * @param siteId siteId to get the scores for
-	 * @param day the {@link Date} to get the scores for
+	 * @param day the {@link LocalDate} to get the scores for. Note that this is a date without a time-zone in the ISO-8601 calendar system,
+	 *            such as <code>2016-03-15</code>.
 	 * @return {@link EngagementScore} for the students in the site
 	 */
-	List<EngagementScore> getEngagementScores(final String siteId, Date day);
+	List<EngagementScore> getEngagementScores(final String siteId, LocalDate day);
 
 	/**
 	 * Calculates and sets the engagement score for the day
 	 *
 	 * @param userUuid user to calculate for
 	 * @param siteId site to calculate for
-	 * @param day the day to store the score for
+	 * @param day The day on the server that will be the basis of all event calculations. Passing in <code>LocalDate.now()</code> is a good
+	 *            option :) You could also pass in a different date instance if you need to process events for a different day. Note that
+	 *            passing in today's date will grab the events for the last completed day in everyone's timezone so don't modify the day
+	 *            instance unless you know that is what you want to do.
 	 */
-	void setEngagementScore(String userUuid, String siteId, Date day);
+	void calculateAndSetEngagementScore(String userUuid, String siteId, LocalDate day);
 
 }

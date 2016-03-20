@@ -9,6 +9,9 @@
         <!-- API injection -->
         <property name="persistenceService" ref="org.sakaiproject.studentengagement.persistence.StudentEngagementPersistenceService" />
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService" />
+        
         
         <!-- 
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
@@ -28,10 +31,12 @@
 		-->
 	</bean>
 	
-	<!-- setup a DAO, accessed via the transaction proxy -->
+	<!-- setup a DAO, accessed via the transaction proxy. Inject as required. -->
 	<bean id="org.sakaiproject.studentengagement.persistence.StudentEngagementPersistenceServiceTarget"
-    	class="org.sakaiproject.studentengagement.persistence.impl.StudentEngagementPersistenceServiceImpl">
+    	class="org.sakaiproject.studentengagement.persistence.impl.StudentEngagementPersistenceServiceImpl"
+    	init-method="init">
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+		<property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
 	</bean>
         
 	<!--  register the DAO as a transactional interceptor. Use the classloader proxy from gendao because this is a protected DAO

@@ -10,38 +10,74 @@ package org.sakaiproject.studentengagement.impl;
  * prosecution.
  */
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 
+import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.studentengagement.api.StudentEngagementService;
 import org.sakaiproject.studentengagement.dto.EngagementScore;
 import org.sakaiproject.studentengagement.entity.EngagementScoreEntity;
 import org.sakaiproject.studentengagement.persistence.StudentEngagementPersistenceService;
+import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesService;
 
 import lombok.Setter;
 
+/**
+ * Implementation of {@link StudentEngagementService}
+ */
 public class StudentEngagementServiceImpl implements StudentEngagementService {
 
 	@Override
-	public List<EngagementScore> getEngagementScores(final String siteId, final Date day) {
+	public List<EngagementScore> getEngagementScores(final String siteId, final LocalDate day) {
 
 		// get students in site
 		final List<String> userUuids = getStudents(siteId);
 
+		// convert LocalDate to Date
+		final Date date = Date.from(day.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+
 		// get scores from persistence and map them
-		final List<EngagementScoreEntity> entities = this.persistenceService.getScores(userUuids, siteId, day);
+		final List<EngagementScoreEntity> entities = this.persistenceService.getScores(userUuids, siteId, date);
 		final List<EngagementScore> rval = mapToDto(entities);
 
 		return rval;
 	}
 
 	@Override
-	public void setEngagementScore(final String userUuid, final String siteId, final Date day) {
+	public void calculateAndSetEngagementScore(final String userUuid, final String siteId, final LocalDate day) {
+
+		// get day prior
+		final LocalDate yesterday = day.minusDays(1);
+
+		// get the beginning of the given day
+		final LocalDateTime beginningOfDay = day.minusDays(1).atStartOfDay();
+		//final LocalDate yesterdayServer = day.minusDays(1).with(LocalDateTime.MAX);
+
+		// get the preferred timezone for the user
+		// TODO optimise this into a map/cache that persists between runs so we dont need to hit it each time?
+		final ZoneId zoneId = getUserTimeZone(userUuid);
+
+		//determine the end of yesterday for the user
+		final ZonedDateTime yesterdayEndUser = yesterdayServer.atStartOfDay(zoneId).with(LocalDateTime.MAX);
+
+		//has yesterday finished for the user (the end of the day will be before before the current days beginning.
+		yesterdayEndUser.toInstant()day.
+
 
 	}
 
@@ -82,10 +118,38 @@ public class StudentEngagementServiceImpl implements StudentEngagementService {
 		return new ArrayList<>(userUuids);
 	}
 
+	/**
+	 * Get a user's timezone as a {@link ZoneId} from their preferences.
+	 *
+	 * @param userUuid uuid of the user to get preferences for
+	 * @return ZoneId of user preferences or the default timezone/ZoneId of the server if none is set
+	 */
+	protected ZoneId getUserTimeZone(final String userUuid) {
+
+		TimeZone timezone;
+		final Preferences prefs = this.preferencesService.getPreferences(userUuid);
+		final ResourceProperties props = prefs.getProperties(TimeService.APPLICATION_ID);
+		final String tzPref = props.getProperty(TimeService.TIMEZONE_KEY);
+
+		if (StringUtils.isNotBlank(tzPref)) {
+			timezone = TimeZone.getTimeZone(tzPref);
+		} else {
+			timezone = TimeZone.getDefault();
+		}
+
+		return timezone.toZoneId();
+	}
+
 	@Setter
 	StudentEngagementPersistenceService persistenceService;
 
 	@Setter
 	SiteService siteService;
+
+	@Setter
+	ServerConfigurationService serverConfigurationService;
+
+	@Setter
+	PreferencesService preferencesService;
 
 }

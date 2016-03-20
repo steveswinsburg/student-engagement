@@ -17,11 +17,26 @@ import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.studentengagement.entity.EngagementScoreEntity;
 import org.sakaiproject.studentengagement.persistence.StudentEngagementPersistenceService;
 import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
+import lombok.Setter;
+
 public class StudentEngagementPersistenceServiceImpl extends HibernateDaoSupport implements StudentEngagementPersistenceService {
+
+	private String dbVendor;
+
+	@Setter
+	SqlService sqlService;
+
+	/**
+	 * Setup stuff
+	 */
+	public void init() {
+		this.dbVendor = this.sqlService.getVendor();
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -57,6 +72,11 @@ public class StudentEngagementPersistenceServiceImpl extends HibernateDaoSupport
 		// }
 		//
 		// query += " and um.USER_ID = ss.SESSION_USER order by se.EVENT_DATE desc";
+
+		// select * from sakai_event
+		// where event_date
+		// BETWEEN TO_DATE('2016-03-12', 'YYYY-MM-DD')
+		// AND TO_DATE('2016-03-12 23:59:59', 'YYYY-MM-DD HH24:MI:SS')
 
 		return new ArrayList<>();
 
