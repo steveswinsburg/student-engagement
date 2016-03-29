@@ -10,6 +10,7 @@ package org.sakaiproject.studentengagement.impl;
  * prosecution.
  */
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,12 +18,15 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -48,6 +52,40 @@ import lombok.extern.apachecommons.CommonsLog;
 @CommonsLog
 public class StudentEngagementServiceImpl implements StudentEngagementService {
 
+	@Setter
+	StudentEngagementPersistenceService persistenceService;
+
+	@Setter
+	SiteService siteService;
+
+	@Setter
+	ServerConfigurationService serverConfigurationService;
+
+	@Setter
+	PreferencesService preferencesService;
+	
+	Map<String,BigDecimal> valueMap;
+	
+	/**
+	 * Setup config map
+	 */
+	public void init() {
+		
+		String[] values = this.serverConfigurationService.getStrings("student.engagement.event.values");
+		if(values == null) {
+			log.warn("Student engagement event values are not set. Please configure 'student.engagement.event.values' to use this feature.");
+			return;
+		}
+		
+		valueMap = Arrays.asList(values)
+				.stream()
+				.map(elem -> elem.split(":"))
+				.collect(Collectors.toMap(e -> e[0], e -> new BigDecimal(e[1])));
+
+		log.info("Student engagement config: " + valueMap);
+		
+	}
+	
 	@Override
 	public List<EngagementScore> getEngagementScores(final String siteId, final LocalDate day) {
 
@@ -205,17 +243,7 @@ public class StudentEngagementServiceImpl implements StudentEngagementService {
 		
 	}
 
-	@Setter
-	StudentEngagementPersistenceService persistenceService;
-
-	@Setter
-	SiteService siteService;
-
-	@Setter
-	ServerConfigurationService serverConfigurationService;
-
-	@Setter
-	PreferencesService preferencesService;
+	
 
 	
 

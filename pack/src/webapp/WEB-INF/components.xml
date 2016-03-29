@@ -5,7 +5,8 @@
 
 	<!--  StudentEngagementService -->
  	<bean id="org.sakaiproject.studentengagement.api.StudentEngagementService"
-    	class="org.sakaiproject.studentengagement.impl.StudentEngagementServiceImpl">
+    	class="org.sakaiproject.studentengagement.impl.StudentEngagementServiceImpl"
+    	init-method="init">
         <!-- API injection -->
         <property name="persistenceService" ref="org.sakaiproject.studentengagement.persistence.StudentEngagementPersistenceService" />
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
