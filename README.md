@@ -1,5 +1,4 @@
-# student-engagement
-Student Engagement
+# Student Engagement for Sakai
 
 This is a Sakai app that provides a metric for student engagement based on site activity.
 
