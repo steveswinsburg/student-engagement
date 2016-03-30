@@ -12,7 +12,9 @@ There are two parts:
 Simply `mvn clean install sakai:deploy` into your Sakai installation.
 
 ## Configuration
-In sakai.properties, set the values for each of the events you want to be considered. You can use either of the configuration formats below. Each entry must have a `:` between the event name and the value. Decimal values are supported.
+In sakai.properties, set the values for each of the events you want to be considered. You can use either of the configuration formats below. 
+
+*Each entry must have a `:` between the event name and the value. Decimal values are supported.*
 
 ````
 student.engagement.event.values=annc.read:5,asn.read.assignment:10,asn.save.submission:20.3
