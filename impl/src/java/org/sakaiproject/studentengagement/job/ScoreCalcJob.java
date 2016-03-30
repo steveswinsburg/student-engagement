@@ -21,8 +21,10 @@ import lombok.Setter;
  * This is the Student Engagement calculation job.
  *
  * <p>
- * This job uses the currently configured weightings for a collection of events and determines each student's engagement score for the day
+ * This job uses the currently configured weightings for a collection of events and determines each student's engagement score for the day.
+ * This job must only run once per 24 hours.
  * </p>
+ * 
  *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
@@ -53,7 +55,7 @@ public class ScoreCalcJob implements Job {
 		
 		LocalDate today = LocalDate.now().minusDays(1);
 		
-		//TODO check if job has already run for today. Will need a table to store this
+
 		
 		//TODO is this the correct call?
 		List<String> allSiteIds = siteService.getSiteIds(SiteService.SelectionType.NON_USER, null, null, null, SiteService.SortType.NONE, null);
