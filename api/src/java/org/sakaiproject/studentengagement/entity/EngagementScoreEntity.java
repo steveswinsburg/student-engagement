@@ -2,20 +2,24 @@ package org.sakaiproject.studentengagement.entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Persistent entity for the student engagement score
  *
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  */
+@ToString(includeFieldNames = true)
 public class EngagementScoreEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Auto assigned by Hibernate
+	 */
 	@Getter
 	@Setter
 	private long id;

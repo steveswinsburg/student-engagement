@@ -17,13 +17,12 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
-import org.hibernate.Hibernate;
-import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.StandardBasicTypes;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.studentengagement.dto.CompleteDay;
 import org.sakaiproject.studentengagement.dto.EngagementEvent;
 import org.sakaiproject.studentengagement.entity.EngagementScoreEntity;
 import org.sakaiproject.studentengagement.persistence.StudentEngagementPersistenceService;
@@ -42,6 +41,7 @@ public class StudentEngagementPersistenceServiceImpl extends HibernateDaoSupport
 	 * Setup stuff
 	 */
 	public void init() {
+		//TODO no longer required
 		this.dbVendor = this.sqlService.getVendor();
 	}
 
@@ -63,7 +63,7 @@ public class StudentEngagementPersistenceServiceImpl extends HibernateDaoSupport
 	}
 
 	@Override
-	public List<EngagementEvent> getEvents(final String userUuid, final String siteId, final LocalDate day) {
+	public List<EngagementEvent> getEvents(final String userUuid, final String siteId, final CompleteDay day) {
 		String queryString = 
 			"SELECT " +
 			"  e.event " +
@@ -73,30 +73,24 @@ public class StudentEngagementPersistenceServiceImpl extends HibernateDaoSupport
 			"JOIN sakai_session s " +
 			"  ON e.session_id = s.session_id " +
 			"WHERE s.session_user = :user_id " +
-			"AND e.context = :site_id ";
-			if (StringUtils.equalsIgnoreCase(this.dbVendor, "oracle")) {
-				queryString += "AND e.event_date BETWEEN TO_DATE(:start_of_day, 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE(:end_of_day, 'YYYY-MM-DD HH24:MI:SS') ";
-			} else {
-				queryString += "EVENT_DATE BETWEEN :start_of_day AND :end_of_day";
-			}
-			
-			queryString += "ORDER BY e.event_date ASC";
+			"AND e.context = :site_id " +
+			"AND e.event_date BETWEEN :start_of_day AND :end_of_day " +
+			"ORDER BY e.event_date ASC";
 			
 		final Session session = getSessionFactory().getCurrentSession();
 		SQLQuery query = session.createSQLQuery(queryString);
+		
+		//set the params
 		query.setString("user_id", userUuid);
 		query.setString("site_id", siteId);
+		query.setTimestamp("start_of_day", new Date(day.getStart()*1000));
+		query.setTimestamp("end_of_day", new Date(day.getEnd()*1000));
 		
-		// TODO this is still not correct as it will be the start of day for the events not the users actual time
-		// will need to pass in the start and end date times
-		query.setString("start_of_day", day.toString() + " 00:00:00");
-		query.setString("end_of_day", day.toString() + " 23:59:59");
-
-		
+		//set return types
 		query.addScalar("event", StandardBasicTypes.STRING);
 		query.addScalar("context", StandardBasicTypes.STRING);
 		query.addScalar("session_user", StandardBasicTypes.STRING);
-		
+				
 		List<Object[]> list = query.list();
 		
 		List<EngagementEvent> rval = new ArrayList<EngagementEvent>();
@@ -112,6 +106,17 @@ public class StudentEngagementPersistenceServiceImpl extends HibernateDaoSupport
 		}
 		
 		return rval;
+	}
+	
+	@Override
+	public void setScores(List<EngagementScoreEntity> entities) {
+		
+		final Session session = getSessionFactory().getCurrentSession();
+		
+		//TODO convert to a batch persist
+		entities.forEach(e -> {		
+			session.save(e);
+		});
 	}
 
 }

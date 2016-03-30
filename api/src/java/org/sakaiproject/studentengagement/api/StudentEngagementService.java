@@ -24,23 +24,17 @@ public interface StudentEngagementService {
 	List<EngagementScore> getEngagementScores(final String siteId, LocalDate day);
 
 	/**
-	 * Calculates the engagement score for the day an dall users in the site
+	 * Calculates the engagement score for the give site and day
 	 *
-	 * @param userUuid user to calculate for
-	 * @param siteId site to calculate for
-	 */
-	void calculateAndSetEngagementScore(String siteId, LocalDate day);
-	
-	/**
-	 * Calculates and sets the engagement score for the day
-	 *
-	 * @param userUuid user to calculate for
 	 * @param siteId site to calculate for
 	 * @param day The day on the server that will be the basis of all event calculations. Passing in <code>LocalDate.now()</code> is a good
 	 *            option :) You could also pass in a different date instance if you need to process events for a different day. Note that
-	 *            passing in today's date will grab the events for the last completed day in everyone's timezone so don't modify the day
+	 *            passing in today's date will grab the events for the last completed day in every user's timezone so don't modify the day
 	 *            instance unless you know that is what you want to do.
+	 *            
+	 *            Note also that if the last complete day for a student is a whole day different to the passed in day, then this will be
+	 *            the one persisted with the score for that student
 	 */
-	void calculateAndSetEngagementScore(String userUuid, String siteId, LocalDate day);
+	void calculateEngagementScores(String siteId, LocalDate day);
 
 }

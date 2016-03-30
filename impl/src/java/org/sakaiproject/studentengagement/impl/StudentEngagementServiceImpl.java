@@ -36,7 +36,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.studentengagement.api.StudentEngagementService;
 import org.sakaiproject.studentengagement.dto.EngagementEvent;
 import org.sakaiproject.studentengagement.dto.EngagementScore;
-import org.sakaiproject.studentengagement.dto.LastCompleteDay;
+import org.sakaiproject.studentengagement.dto.CompleteDay;
 import org.sakaiproject.studentengagement.entity.EngagementScoreEntity;
 import org.sakaiproject.studentengagement.persistence.StudentEngagementPersistenceService;
 import org.sakaiproject.time.api.TimeService;
@@ -64,7 +64,7 @@ public class StudentEngagementServiceImpl implements StudentEngagementService {
 	@Setter
 	PreferencesService preferencesService;
 	
-	Map<String,BigDecimal> valueMap;
+	Map<String,BigDecimal> eventValues;
 	
 	/**
 	 * Setup config map
@@ -77,12 +77,12 @@ public class StudentEngagementServiceImpl implements StudentEngagementService {
 			return;
 		}
 		
-		valueMap = Arrays.asList(values)
+		eventValues = Arrays.asList(values)
 				.stream()
 				.map(elem -> elem.split(":"))
 				.collect(Collectors.toMap(e -> e[0], e -> new BigDecimal(e[1])));
 
-		log.info("Student engagement config: " + valueMap);
+		log.info("Student engagement config: " + eventValues);
 		
 	}
 	
@@ -103,8 +103,12 @@ public class StudentEngagementServiceImpl implements StudentEngagementService {
 		return rval;
 	}
 	
+
 	@Override
-	public void calculateAndSetEngagementScore(String siteId, LocalDate day) {
+	public void calculateEngagementScores(final String siteId, final LocalDate day) {
+
+		log.info(String.format("Calculating for site: %s", siteId));
+		
 		// get students in site
 		final List<String> userUuids = getStudents(siteId);
 		
@@ -113,44 +117,33 @@ public class StudentEngagementServiceImpl implements StudentEngagementService {
 			return;
 		}
 		
-		for(String userUuid: userUuids) {
-			calculateAndSetEngagementScore(userUuid, siteId, day);
-		}
+		List<EngagementScoreEntity> entities = new ArrayList<>();
 		
-	}
-
-	@Override
-	public void calculateAndSetEngagementScore(final String userUuid, final String siteId, final LocalDate day) {
-
-		// get day prior
-		//final LocalDate yesterday = day.minusDays(1);
-
-		// get the beginning of the given day
-		//final LocalDateTime beginningOfDay = day.minusDays(1).atStartOfDay();
-		//final LocalDate yesterdayServer = day.minusDays(1).with(LocalDateTime.MAX);
-
-		// get the preferred timezone for the user
-		// TODO optimise this into a map/cache that persists between runs so we dont need to hit it each time?
-		//final ZoneId zoneId = getUserTimeZone(userUuid);
-
-		//determine the end of yesterday for the user
-		//final ZonedDateTime yesterdayEndUser = yesterdayServer.atStartOfDay(zoneId).with(LocalDateTime.MAX);
-
-		//has yesterday finished for the user (the end of the day will be before before the current days beginning.
-		//yesterdayEndUser.toInstant()day.
-
-		log.info(String.format("Running for site: %s, user: %s and day: %s.", siteId, userUuid, day.toString()));
-		
-		
-		List<EngagementEvent> events = this.persistenceService.getEvents(userUuid, siteId, day);
-		events.forEach(e -> {
+		// for every user, get the last completed day, get the events, process them and create an entitty for persisting
+		userUuids.forEach(userUuid -> {
 			
-			log.info(e);
+			//TODO cache this so we only look this up once per user, not once per user per site
+			CompleteDay completeDay = this.getLastCompleteDay(userUuid);
+			
+			log.info(String.format("User: %s, Day: %s", userUuid, completeDay.toString()));
+			
+			List<EngagementEvent> events = this.persistenceService.getEvents(userUuid, siteId, completeDay);
+			
+			BigDecimal score = this.calculateScore(events);
+			
+			EngagementScoreEntity entity = new EngagementScoreEntity();
+			entity.setDay(completeDay.getDay().toString());
+			entity.setSiteId(siteId);
+			entity.setUserUuid(userUuid);
+			entity.setScore(score);
+			
+			entities.add(entity);
 			
 		});
 		
+		//persist the entities
+		this.persistenceService.setScores(entities);
 		
-
 	}
 
 	/**
@@ -212,39 +205,69 @@ public class StudentEngagementServiceImpl implements StudentEngagementService {
 		return timezone.toZoneId();
 	}
 	
-	protected LastCompleteDay getLastCompleteDay(ZoneId zoneId){
+	/**
+	 * Get the last complete day for the given user. 
+	 * @param userUuid user to get the day for
+	 * @return
+	 */
+	protected CompleteDay getLastCompleteDay(String userUuid){
 		
-		LastCompleteDay rval = new LastCompleteDay();
+		CompleteDay rval = new CompleteDay();
 		
-		ZonedDateTime now = ZonedDateTime.now();
-		long nowSeconds = Instant.from(now).getEpochSecond();
+		//get zoneId for the user
+		ZoneId zoneId = getUserTimeZone(userUuid);
+		
+		// determine right now
+		final ZonedDateTime now = ZonedDateTime.now();
+		final long nowSeconds = Instant.from(now).getEpochSecond();
 
-		//TODO convert these to instants straight up, we dont need the zonedbits
-		final ZonedDateTime localisedYesterdayStart = now.toLocalDate().minusDays(1).atStartOfDay(zoneId);
-		final ZonedDateTime localisedNextDayStart = localisedYesterdayStart.toLocalDate().plusDays(1).atStartOfDay(zoneId);
+		// determine the start of yesterday
+		final ZonedDateTime localisedYesterdayStart = now.toLocalDate().minusDays(1).atStartOfDay(zoneId);		
 		
-		long localisedNextDayStartSeconds = Instant.from(localisedNextDayStart).getEpochSecond();
+		// get the epoch seconds at the end of the localised yesterday
+		final long localisedYesterdayEndSeconds = Instant.from(localisedYesterdayStart.toLocalDate().plusDays(1).atStartOfDay(zoneId)).getEpochSecond()-1;
+
 		
-		//is the localised next day start less than right now? If so, that day is complete.
-		if(localisedNextDayStartSeconds < nowSeconds) {
-			System.out.println("day has ended");
+		// Rule: is the localised yesterday end less than right now? If so, that day is complete. If not, subtract another day and use those values.
+		if(localisedYesterdayEndSeconds < nowSeconds) {
+			log.debug("Day is complete: " + localisedYesterdayStart);
+			
+			rval.setDay(localisedYesterdayStart.toLocalDate());
 			rval.setStart(Instant.from(localisedYesterdayStart).getEpochSecond());
-			rval.setStart(Instant.from(localisedNextDayStart).getEpochSecond()-1);
+			rval.setEnd(localisedYesterdayEndSeconds);
+		
 		} else {
-			System.out.println("day not over");
-			//subtract another day and get the instants for start and emd
+			log.debug("Day not complete: " + localisedYesterdayStart);
+			
+			//subtract another whole day and get the seconds
+			//for these purposes we use the 'yesterday' start minus one second, as the end of the previous day rather than recalculate the day
+			rval.setDay(localisedYesterdayStart.minusDays(1).toLocalDate());
+			rval.setStart(Instant.from(localisedYesterdayStart.minusDays(1)).getEpochSecond());
+			rval.setStart(Instant.from(localisedYesterdayStart).getEpochSecond()-1);
 		}
 		
-		
-		
-		
-		
-		return null;
+		return rval;
 		
 	}
-
 	
+	/**
+	 * Calculate the score given the list of events
+	 * @param events list of {@link EngagementEvent}s
+	 * @return
+	 */
+	protected BigDecimal calculateScore(List<EngagementEvent> events) {
+		
+		BigDecimal rval = BigDecimal.ZERO;
+		
+		//TODO convert to lambda
+		for(EngagementEvent e: events) {
+			if(this.eventValues.containsKey(e.getEvent())) {
+				rval = rval.add(this.eventValues.get(e.getEvent()));
+			}
+		};
+		
+		return rval;
+	}
 
-	
 
 }

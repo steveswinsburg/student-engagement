@@ -18,7 +18,7 @@ import lombok.ToString;
 @ToString(includeFieldNames = true)
 @Getter
 @Setter
-public class LastCompleteDay {
+public class CompleteDay {
 
 	/**
 	 * The day we are working with

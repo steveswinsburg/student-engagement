@@ -1,7 +1,5 @@
 package org.sakaiproject.studentengagement.job;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -15,7 +13,7 @@ import org.quartz.StatefulJob;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.studentengagement.api.StudentEngagementService;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.UserDirectoryService;
+
 
 import lombok.Setter;
 
@@ -59,25 +57,8 @@ public class ScoreCalcJob implements Job {
 		List<String> allSiteIds = siteService.getSiteIds(SiteService.SelectionType.NON_USER, null, null, null, SiteService.SortType.NONE, null);
 
 		for(String siteId: allSiteIds) {
-			this.studentEngagementService.calculateAndSetEngagementScore(siteId, today);
+			this.studentEngagementService.calculateEngagementScores(siteId, today);
 		}
-		
-		
-		
-		// start a session for admin so we can get full profiles
-		// final Session session = this.sessionManager.startSession();
-		// this.sessionManager.setCurrentSession(session);
-		// session.setUserEid("admin");
-		// session.setUserId("admin");
-		
-
-		// get total possible score
-		// final BigDecimal total = getTotal();
-		//final BigDecimal total = new BigDecimal(4);
-
-		//log.info("Total score possible: " + total.setScale(2, RoundingMode.HALF_UP));
-
-		
 
 		log.info("ScoreCalcJob finished");
 	}
@@ -111,8 +92,6 @@ public class ScoreCalcJob implements Job {
 		log.info("ScoreCalcJob.init()");
 	}
 
-	@Setter
-	private UserDirectoryService userDirectoryService;
 
 	@Setter
 	private StudentEngagementService studentEngagementService;
