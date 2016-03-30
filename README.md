@@ -28,9 +28,7 @@ student.engagement.event.values.2=asn.read.assignment:10
 student.engagement.event.values.3=asn.save.submission:20.3
 ````
 
-In Sakai:
-1. login as an administrator and navigate to the `Admin Workspace > Job Scheduler`. 
-2. Setup the `Student Engagement SCore Calculator` job to run once per day.
+In Sakai, login as an administrator and navigate to the `Admin Workspace > Job Scheduler`. Setup the `Student Engagement SCore Calculator` job to run once per day.
 
 __This job must only run once per day!__
 
