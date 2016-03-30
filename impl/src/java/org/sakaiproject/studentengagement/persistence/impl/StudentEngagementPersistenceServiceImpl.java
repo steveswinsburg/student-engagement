@@ -1,13 +1,4 @@
-/*
- * Copyright (c) Orchestral Developments Ltd and the Orion Health group of companies (2001 - 2016).
- *
- * This document is copyright. Except for the purpose of fair reviewing, no part
- * of this publication may be reproduced or transmitted in any form or by any
- * means, electronic or mechanical, including photocopying, recording, or any
- * information storage and retrieval system, without permission in writing from
- * the publisher. Infringers of copyright render themselves liable for
- * prosecution.
- */
+
 package org.sakaiproject.studentengagement.persistence.impl;
 
 import java.time.LocalDate;
@@ -30,6 +21,11 @@ import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 
 import lombok.Setter;
 
+/**
+ * Implementation of {@link StudentEngagementPersistenceService}
+ * @author Steve Swinsburg (steve.swinsburg@gmail.com)
+ *
+ */
 public class StudentEngagementPersistenceServiceImpl extends HibernateDaoSupport implements StudentEngagementPersistenceService {
 
 	private String dbVendor;
@@ -41,7 +37,6 @@ public class StudentEngagementPersistenceServiceImpl extends HibernateDaoSupport
 	 * Setup stuff
 	 */
 	public void init() {
-		//TODO no longer required
 		this.dbVendor = this.sqlService.getVendor();
 	}
 
@@ -73,9 +68,18 @@ public class StudentEngagementPersistenceServiceImpl extends HibernateDaoSupport
 			"JOIN sakai_session s " +
 			"  ON e.session_id = s.session_id " +
 			"WHERE s.session_user = :user_id " +
-			"AND e.context = :site_id " +
-			"AND e.event_date BETWEEN :start_of_day AND :end_of_day " +
-			"ORDER BY e.event_date ASC";
+			"AND e.context = :site_id ";
+			if (StringUtils.equalsIgnoreCase(this.dbVendor, "oracle")) {
+				//queryString += "AND e.event_date BETWEEN TO_DATE(:start_of_day, 'YYYY-MM-DD HH24:MI:SS') AND TO_DATE(:end_of_day, 'YYYY-MM-DD HH24:MI:SS') ";
+				queryString += "AND e.event_date BETWEEN " +
+								"CAST (DATE '1970-01-01' + (1/24/60/60) * :start_of_day AS TIMESTAMP) AND " +
+								"CAST (DATE '1970-01-01' + (1/24/60/60) * :end_of_day AS TIMESTAMP) ";
+			} else {
+				//TODO mysql probably needs to change?
+				queryString += "EVENT_DATE BETWEEN :start_of_day AND :end_of_day";
+			}
+			
+			queryString += "ORDER BY e.event_date ASC";
 			
 		final Session session = getSessionFactory().getCurrentSession();
 		SQLQuery query = session.createSQLQuery(queryString);
@@ -83,8 +87,8 @@ public class StudentEngagementPersistenceServiceImpl extends HibernateDaoSupport
 		//set the params
 		query.setString("user_id", userUuid);
 		query.setString("site_id", siteId);
-		query.setTimestamp("start_of_day", new Date(day.getStart()*1000));
-		query.setTimestamp("end_of_day", new Date(day.getEnd()*1000));
+		query.setLong("start_of_day", day.getStart());
+		query.setLong("end_of_day", day.getEnd());
 		
 		//set return types
 		query.addScalar("event", StandardBasicTypes.STRING);

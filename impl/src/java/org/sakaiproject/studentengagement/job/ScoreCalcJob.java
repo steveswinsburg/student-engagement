@@ -53,6 +53,8 @@ public class ScoreCalcJob implements Job {
 		
 		LocalDate today = LocalDate.now().minusDays(1);
 		
+		//TODO check if job has already run for today. Will need a table to store this
+		
 		//TODO is this the correct call?
 		List<String> allSiteIds = siteService.getSiteIds(SiteService.SelectionType.NON_USER, null, null, null, SiteService.SortType.NONE, null);
 
