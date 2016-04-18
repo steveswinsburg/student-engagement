@@ -82,6 +82,18 @@ List<EngagementScore> getEngagementScores(final String siteId, LocalDate day);
 void calculateEngagementScores(String siteId, LocalDate day);
 ````
 
+## Testing
+
+In the `test` directory is a set of CSV files and a PL/SQL script that can be used to generate thousands of users and millions of events at random times. This enables the calculation job to run across the dta and pickup different sets of data for different users.
+
+*To use this:*
+1. In Sakai, as an administrator, create a number of sites that will be used for testing. Tools are not required.
+2. In Sakai, as an administrator, import the tests/users.csv file to create 10000 sample users. 
+3. In Sakai, go to the sites you created, use Site Info > Add participants and copy the list of users in the test/users_ids_only.csv file, to add all of the users to the site. You can cut down this list of users as well, or mix it up, it is up to you. 
+4. The idea is to get a sample set of sites and users that might be representative of a real system.
+5. Run the generate_events.sql PL/SQL script (Oracle only).
+6. Run the Student Engagement Job.
+
 
 
 
