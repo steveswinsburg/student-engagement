@@ -89,7 +89,6 @@ In the `test` directory is a set of CSV files and a PL/SQL script that can be us
 **To use this:**
 
 * In Sakai, as an administrator, create a sites that will be used for testing. Tools are not required.
-* _You can optionally add users at this point if you want all of the users to be the same in each site._
 * In Sakai, as an administrator, go to that site and duplicate it as many times as you like.
 * In Sakai, as an administrator, import the `tests/users.csv` file to create 10000 sample users. 
 * In Sakai, go to the sites you created, use `Site Info > Add participants` and copy the list of users in the `test/users_ids_only.csv` file, to add all of the users to the site. You can cut down this list of users as well, or mix it up, it is up to you. 
