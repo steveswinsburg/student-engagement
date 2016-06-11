@@ -76,7 +76,7 @@ public class StudentEngagementPersistenceServiceImpl extends HibernateDaoSupport
 								"CAST (DATE '1970-01-01' + (1/24/60/60) * :end_of_day AS TIMESTAMP) ";
 			} else {
 				//TODO mysql probably needs to change?
-				queryString += "EVENT_DATE BETWEEN :start_of_day AND :end_of_day";
+				queryString += "EVENT_DATE BETWEEN :start_of_day AND :end_of_day ";
 			}
 			
 			queryString += "ORDER BY e.event_date ASC";
