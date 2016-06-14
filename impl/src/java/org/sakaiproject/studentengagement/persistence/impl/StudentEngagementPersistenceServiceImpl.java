@@ -3,7 +3,6 @@ package org.sakaiproject.studentengagement.persistence.impl;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -75,8 +74,8 @@ public class StudentEngagementPersistenceServiceImpl extends HibernateDaoSupport
 								"CAST (DATE '1970-01-01' + (1/24/60/60) * :start_of_day AS TIMESTAMP) AND " +
 								"CAST (DATE '1970-01-01' + (1/24/60/60) * :end_of_day AS TIMESTAMP) ";
 			} else {
-				//TODO mysql probably needs to change?
-				queryString += "EVENT_DATE BETWEEN :start_of_day AND :end_of_day ";
+				// mysql
+				queryString += "AND e.event_date BETWEEN :start_of_day AND :end_of_day ";
 			}
 			
 			queryString += "ORDER BY e.event_date ASC";
