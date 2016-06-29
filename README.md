@@ -31,7 +31,7 @@ In Sakai, login as an administrator and navigate to the `Admin Workspace > Job S
 
 __This job must only run once per day!__
 
-Apply the following index to the sakai_event table:
+Apply the following index to the SAKAI_EVENT table:
 ````
 CREATE INDEX SAKAI_EVENT_IDX1 ON SAKAI_EVENT (CONTEXT, EVENT_DATE, SESSION_ID);
 ````

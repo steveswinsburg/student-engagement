@@ -63,8 +63,8 @@ public class StudentEngagementPersistenceServiceImpl extends HibernateDaoSupport
 			"  e.event " +
 			", e.context " +
 			", s.session_user " +
-			"FROM sakai_event e " +
-			"JOIN sakai_session s " +
+			"FROM SAKAI_EVENT e " +
+			"JOIN SAKAI_SESSION s " +
 			"  ON e.session_id = s.session_id " +
 			"WHERE s.session_user = :user_id " +
 			"AND e.context = :site_id ";
