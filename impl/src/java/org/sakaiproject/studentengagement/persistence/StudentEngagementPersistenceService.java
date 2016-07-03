@@ -23,7 +23,7 @@ public interface StudentEngagementPersistenceService {
 	List<EngagementScoreEntity> getScores(final List<String> userUuids, final String siteId, final LocalDate day);
 
 	/**
-	 * Get the events from sakai_event and sakai_session table for the given user, site and day
+	 * Get the events from SAKAI_EVENT and SAKAI_SESSION table for the given user, site and day
 	 * 
 	 * Note that day stores the exact seconds that we want the events for
 	 * 

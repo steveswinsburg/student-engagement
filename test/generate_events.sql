@@ -113,7 +113,7 @@ BEGIN
       END IF;
 
       -- create a session for the user
-      INSERT INTO sakai_session(session_id, session_user, session_active)
+      INSERT INTO SAKAI_SESSION(session_id, session_user, session_active)
       VALUES (session_id, user_id_array(rand_user), 1);
       
       -- insert some events for the user
@@ -129,7 +129,7 @@ BEGIN
         event_time := sysdate - dbms_random.value() - round(dbms_random.value()*23)/24 - round(dbms_random.value()*59)/1440;
 
         -- insert the event
-        INSERT INTO sakai_event (event_id, event_date, event, ref, context, session_id, event_code) 
+        INSERT INTO SAKAI_EVENT (event_id, event_date, event, ref, context, session_id, event_code) 
         VALUES (sakai_event_seq.nextval, event_time, event_type_array(rand_event), 'fake.ref', site_id_array(i), session_id, 'x');
       
       END LOOP;
