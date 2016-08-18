@@ -13,14 +13,11 @@ package org.sakaiproject.studentengagement.impl;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,19 +26,22 @@ import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.studentengagement.api.StudentEngagementService;
+import org.sakaiproject.studentengagement.dto.CompleteDay;
 import org.sakaiproject.studentengagement.dto.EngagementEvent;
 import org.sakaiproject.studentengagement.dto.EngagementScore;
-import org.sakaiproject.studentengagement.dto.CompleteDay;
 import org.sakaiproject.studentengagement.entity.EngagementScoreEntity;
 import org.sakaiproject.studentengagement.persistence.StudentEngagementPersistenceService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
@@ -64,6 +64,15 @@ public class StudentEngagementServiceImpl implements StudentEngagementService {
 	@Setter
 	PreferencesService preferencesService;
 	
+	@Setter
+	private SecurityService securityService;
+	
+	@Setter
+	private UserDirectoryService userDirectoryService;
+	
+	/**
+	 * Map of event values as defined in sakai.properties
+	 */
 	Map<String,BigDecimal> eventValues;
 	
 	/**
@@ -89,6 +98,9 @@ public class StudentEngagementServiceImpl implements StudentEngagementService {
 	@Override
 	public List<EngagementScore> getEngagementScores(final String siteId, final LocalDate day) {
 
+		//check access
+		checkAccess(siteId);
+		
 		// get students in site
 		final List<String> userUuids = getStudents(siteId);
 		
@@ -102,7 +114,7 @@ public class StudentEngagementServiceImpl implements StudentEngagementService {
 
 		return rval;
 	}
-	
+
 
 	@Override
 	public void calculateEngagementScores(final String siteId, final LocalDate day) {
@@ -264,10 +276,37 @@ public class StudentEngagementServiceImpl implements StudentEngagementService {
 			if(this.eventValues.containsKey(e.getEvent())) {
 				rval = rval.add(this.eventValues.get(e.getEvent()));
 			}
-		};
+		}
 		
 		return rval;
 	}
+	
+	/**
+	 * Checks user is allowed to access
+	 * @param siteId
+	 */
+	private void checkAccess(final String siteId) {
+		if(!securityService.isSuperUser() && !siteService.allowUpdateSite(siteId) && !isApiUser()) {
+			throw new SecurityException("Only authorised users can access the student engagement scores.");
+		}
+	}
+	
+	
+	/**
+	 * Is the current user the API user?
+	 * 
+	 * @return true if so, false if not.
+	 */
+	public boolean isApiUser() {
+		
+		String apiUser = this.serverConfigurationService.getString("api.user");
+		User currentUser = this.userDirectoryService.getCurrentUser();
+		if(currentUser != null) {
+			return (StringUtils.equals(apiUser, currentUser.getEid()));
+		}
+		return false;
+	}
+
 
 
 }

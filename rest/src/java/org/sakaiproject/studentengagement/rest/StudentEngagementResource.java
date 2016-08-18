@@ -1,10 +1,11 @@
 package org.sakaiproject.studentengagement.rest;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.entitybroker.EntityView;
-import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
@@ -17,7 +18,10 @@ import org.sakaiproject.studentengagement.dto.EngagementScore;
 
 import lombok.Setter;
 
-public class StudentEngagementResource extends AbstractEntityProvider implements EntityProvider, AutoRegisterEntityProvider, ActionsExecutable, Outputable, Describeable {
+/**
+ * Entity provider for the Student Engagement Service
+ */
+public class StudentEngagementResource extends AbstractEntityProvider implements AutoRegisterEntityProvider, ActionsExecutable, Outputable, Describeable {
 
 	@Setter
 	private StudentEngagementService engagementService;
@@ -35,26 +39,37 @@ public class StudentEngagementResource extends AbstractEntityProvider implements
 	}
 	
 	/**
-	 * site/siteId/day
+	 * Get the data. Format is: site/siteId/day
 	 * 
 	 * day must be ISO-8601 eg 2016-04-25
+	 * 
+	 * User must be a superuser, instructor in the site or the 'api.user' if it is defined in sakai.properties, as per API restrictions.
 	 */
 	@EntityCustomAction(action = "site", viewKey = EntityView.VIEW_LIST)
 	public List<EngagementScore> getEngagementScoresForSite(EntityView view) {
 		
-		// get siteId
+		// get data
 		String siteId = view.getPathSegment(2);
+		String date = view.getPathSegment(3);
+		
+		// validation
+		if (StringUtils.isBlank(siteId)) {
+			throw new IllegalArgumentException(String.format("SiteId must be given, via the URL /%s/site/{siteId}/{date}.{format}", ENTITY_PREFIX));
+		}
+		if (StringUtils.isBlank(date)) {
+			throw new IllegalArgumentException(String.format("Date must be given, via the URL /%s/site/{siteId}/{date}.{format}", ENTITY_PREFIX));
+		}
 
 		// get day
-		LocalDate day = LocalDate.parse(view.getPathSegment(3));
-		
-		//TODO validation
-		System.out.println(siteId);
-		System.out.println(day.toString());
-		
+		LocalDate day;
+		try {
+			day = LocalDate.parse(view.getPathSegment(3));
+		} catch (DateTimeParseException e) {
+			throw new IllegalArgumentException("Date format was invalid, must be ISO-8601 format, ie YYYY-MM-DD");
+		}
+				
 		List<EngagementScore> scores = engagementService.getEngagementScores(siteId, day);
 		return scores;
-		
 	}
 
 	

@@ -27,6 +27,9 @@ student.engagement.event.values.2=asn.read.assignment:10
 student.engagement.event.values.3=asn.save.submission:20.3
 ````
 
+Also in sakai.properties, you can optionally set a value for `api.user` which is the eid of a user that is allowed to access the Student Engagement REST Service.
+Other users allowed to access this service are super users (ie administrators) and instructors of the given site. If this is not set and you are not one of the former, you will not be able to access the service to retrieve the scores.
+
 In Sakai, login as an administrator and navigate to the `Admin Workspace > Job Scheduler`. Setup the `Student Engagement SCore Calculator` job to run once per day.
 
 __This job must only run once per day!__
