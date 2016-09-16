@@ -75,7 +75,7 @@ public class StudentEngagementPersistenceServiceImpl extends HibernateDaoSupport
 								"CAST (DATE '1970-01-01' + (1/24/60/60) * :end_of_day AS TIMESTAMP) ";
 			} else {
 				// mysql
-				queryString += "AND e.event_date BETWEEN :start_of_day AND :end_of_day ";
+				queryString += "AND e.event_date BETWEEN FROM_UNIXTIME( :start_of_day ) AND FROM_UNIXTIME( :end_of_day ) ";
 			}
 			
 			queryString += "ORDER BY e.event_date ASC";
